@@ -10,7 +10,12 @@ RUN adduser --disabled-password --gecos "" appuser
 COPY --chown=appuser:appuser package*.json ./
 COPY --chown=appuser:appuser prisma ./prisma/ 
 
-RUN npm install
+# Configure npm with retry logic and longer timeouts for network resilience
+RUN npm config set fetch-retry-mintimeout 20000 && \
+    npm config set fetch-retry-maxtimeout 120000 && \
+    npm config set fetch-retries 10 && \
+    npm config set registry https://registry.npmjs.org/ && \
+    npm install --loglevel verbose
 
 # Copy everything else and ensure appuser owns it all
 COPY --chown=appuser:appuser . .

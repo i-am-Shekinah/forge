@@ -1,0 +1,7 @@
+cat > .eslintignore << 'EOF'
+node_modules
+dist
+build
+*.config.js
+prisma/migrations
+EOF
