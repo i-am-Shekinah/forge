@@ -1,16 +1,28 @@
 FROM node:22-alpine
 WORKDIR /app
 
-# Install openssl for Prisma
 RUN apk add --no-cache openssl
 
-COPY package*.json ./
-# Copy the prisma folder specifically so we can run generate
-COPY prisma ./prisma/ 
+# Create the user FIRST
+RUN adduser --disabled-password --gecos "" appuser
+
+# Copy files and change ownership at the same time
+COPY --chown=appuser:appuser package*.json ./
+COPY --chown=appuser:appuser prisma ./prisma/ 
 
 RUN npm install
-# Generate the client for the container's OS
+
+# Copy everything else and ensure appuser owns it all
+COPY --chown=appuser:appuser . .
+
+ENV DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy"
+
+# Switch to the user BEFORE generating
+USER appuser
+
+# Now the user generates the client into a folder they already own
 RUN npx prisma generate
 
-COPY . .
 EXPOSE 5000
+
+CMD [ "npm", "run", "dev" ]

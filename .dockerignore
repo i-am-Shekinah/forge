@@ -1,0 +1,11 @@
+# Ignore the frontend directory
+frontend/
+
+# Ignore local root environment files
+.env
+.git
+.vscode
+
+# Standard ignores
+node_modules
+npm-debug.log
